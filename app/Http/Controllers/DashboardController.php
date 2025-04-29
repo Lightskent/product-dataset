@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         $totalSales = Sale::sum('total_sales');
-        $totalUnitSold = Sale::sum('units_sold');
+        $totalUnitsSold = Sale::sum('units_sold');
 
         $salesByRegion = Sale::select('regions.name as region', DB::raw('SUM(total_sales) as total'))
             ->join('regions', 'sales.region_id', '=', 'regions.id')
@@ -34,8 +34,17 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $recentSales = Sale::with(['product', 'region', 'salesperson'])->latest()->take(10)->get();
+            $recentSales = Sale::with(['product', 'region', 'salesperson'])
+            ->latest()
+            ->take(500)
+            ->get();
+            
+            return view('dashboard.index', compact(
+                'recentSales', // ✅ make sure this is here
+                'totalSales',
+                'totalUnitsSold',
 
-        return view('dashboard.index', compact('totalSales', 'totalUnitsSold'));
+            ));
+    
     }
 }
